@@ -29,11 +29,11 @@ public class Merger {
     String logfileSourceFileExtension = "log";
 
     @Parameter(names = "-logfileTargetPath",
-            description = "The path where the tool creates the logfile containing the merging result.")
+            description = "The path where the tool creates the logfile containing the merging result. (default = \".\\\")")
     String logfileTargetPath = ".\\";
 
     @Parameter(names = "-logfileTargetName",
-            description = "The name of the logfile containing the merging result.")
+            description = "The name of the logfile containing the merging result. (default = \"mergedLogfile.log\")")
     String logfileTargetName = "mergedLogfile.log";
 
     private void checkArguments() {
