@@ -1,4 +1,4 @@
-package com.lidl;
+package eu.kairat.tools.logfileMerger;
 
 import java.util.Date;
 
