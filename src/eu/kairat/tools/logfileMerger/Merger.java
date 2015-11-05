@@ -80,10 +80,10 @@ public class Merger {
      * Checks all arguments.
      */
     private void checkArguments() {
-        checkString(logfileSourceFileExtension, "^\\w+$",                    "logfileSourceFileExtension", Checktypes.PATTERN);
-        checkString(logfileSourcePath,          null,                        "logfileSourcePath",          Checktypes.PATH   );
-        checkString(logfileTargetName,          "^[\\w,\\s-]+\\.[A-Za-z]+$", "logfileTargetName",          Checktypes.PATTERN);
-        checkString(logfileTargetPath,          null,                        "logfileTargetPath",          Checktypes.PATH   );
+        checkString(logfileSourceFileExtension, "^\\w+$",                    "-logfileSourceFileExtension", Checktypes.PATTERN);
+        checkString(logfileSourcePath,          null,                        "-logfileSourcePath",          Checktypes.PATH   );
+        checkString(logfileTargetName,          "^[\\w,\\s-]+\\.[A-Za-z]+$", "-logfileTargetName",          Checktypes.PATTERN);
+        checkString(logfileTargetPath,          null,                        "-logfileTargetPath",          Checktypes.PATH   );
     }
 
     // MERGE FUNCTIONALITY
