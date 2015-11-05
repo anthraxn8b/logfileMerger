@@ -106,12 +106,12 @@ public class Merger {
 
         final Path dir = Paths.get(logfileSourcePath);
         final DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "*.{" + logfileSourceFileExtension + "}");
-        Line lastItem = null;
 
         // iterate over each source file
         for(final Path entry : stream) {
             final String source = entry.getFileName().toString().replaceFirst("[.][^.]+$", "");
             maxSourceChars = Math.max(maxSourceChars, source.length());
+            Line lastItem = null;
 
             // iterate over each line
             try (BufferedReader br = new BufferedReader(new FileReader(entry.toString()))) {
@@ -139,6 +139,10 @@ public class Merger {
 
                     // if the current line is an additional line of the current logfile entry
                     // add it to the message string and separate it by a new line followed by a tab
+                    if(null == lastItem) {
+                        System.out.println("UNALLOCATED LINE | No previously matched line found in logfile! | Line content: " + line);
+                        continue;
+                    }
                     lastItem.message += "\n\t" + line;
 
                     // increment the number of processed lines - not the number of logfile entries
