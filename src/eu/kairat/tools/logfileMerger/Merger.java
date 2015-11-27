@@ -25,25 +25,39 @@ public class Merger {
 
     // PARAMETERS
 
-    @Parameter(names = "-logfileSourcePath",
+    @Parameter(names = "-logfileSourcePath", required = true,
             description = "The path where the tool can find the logfiles to merge.")
     String logfileSourcePath;
 
     @Parameter(names = "-logfileSourceFileExtension",
-            description = "The file extension of the logfiles to merge. (default = \"log\")")
+            description = "The file extension of the logfiles to merge.")
     String logfileSourceFileExtension = "log";
 
     @Parameter(names = "-logfileTargetPath",
-            description = "The path where the tool creates the logfile containing the merging result. (default = \".\\\")")
+            description = "The path where the tool creates the logfile containing the merging result.")
     String logfileTargetPath = ".\\";
 
     @Parameter(names = "-logfileTargetName",
-            description = "The name of the logfile containing the merging result. (default = \"mergedLogfile.log\")")
+            description = "The name of the logfile containing the merging result. It will be prefixed by the current date time.")
     String logfileTargetName = "mergedLogfile.log";
+
+    @Parameter(names = "-containedString",
+            description = "A string that has to be contained in all log entries (in the 1st line).")
+    String containedString = null;
+
+    @Parameter(names = "-h", help = true,
+            description = "Displays the available options.")
+    boolean help;
 
     // PARAMETER CHECKS
 
     private enum Checktypes { PATTERN, PATH }
+
+    class InitCheckException extends Exception {
+        public InitCheckException(final String message) {
+            super(message);
+        }
+    }
 
     /**
      * Checks all given checktypes and that the value is not null.
@@ -52,25 +66,25 @@ public class Merger {
     private void checkString(final String        value,
                              final String        optionalPatternString,
                              final String        parameterName,
-                             final Checktypes... checktypes) {
+                             final Checktypes... checktypes) throws InitCheckException {
 
         final List checktypesList = Lists.newArrayList(checktypes);
 
         if(null == value) {
-            throw new RuntimeException( "Parameter '" + parameterName + "' is null!");
+            throw new InitCheckException( "Parameter '" + parameterName + "' is null!");
         }
 
         if(checktypesList.contains(Checktypes.PATTERN)) {
             final Pattern p = Pattern.compile(optionalPatternString);
             final Matcher m = p.matcher(value);
             if(!m.matches()) {
-                throw new RuntimeException("Parameter '" + parameterName + "' is invalid!");
+                throw new InitCheckException("Parameter '" + parameterName + "' is invalid!");
             }
         }
 
         if(checktypesList.contains(Checktypes.PATH)) {
             if(!Files.isDirectory(Paths.get(value))) {
-                throw new RuntimeException("Parameter '" + parameterName + "' is not a directory!");
+                throw new InitCheckException("Parameter '" + parameterName + "' is not a directory!");
             }
         }
 
@@ -79,16 +93,16 @@ public class Merger {
     /**
      * Checks all arguments.
      */
-    private void checkArguments() {
-        checkString(logfileSourceFileExtension, "^\\w+$",                    "-logfileSourceFileExtension", Checktypes.PATTERN);
-        checkString(logfileSourcePath,          null,                        "-logfileSourcePath",          Checktypes.PATH   );
-        checkString(logfileTargetName,          "^[\\w,\\s-]+\\.[A-Za-z]+$", "-logfileTargetName",          Checktypes.PATTERN);
-        checkString(logfileTargetPath,          null,                        "-logfileTargetPath",          Checktypes.PATH   );
+    private void checkArguments() throws InitCheckException {
+        checkString(logfileSourceFileExtension, "^\\w+$", "-logfileSourceFileExtension", Checktypes.PATTERN);
+        checkString(logfileSourcePath, null, "-logfileSourcePath", Checktypes.PATH);
+        checkString(logfileTargetName, "^[\\w,\\s-]+\\.[A-Za-z]+$", "-logfileTargetName", Checktypes.PATTERN);
+        checkString(logfileTargetPath, null, "-logfileTargetPath", Checktypes.PATH);
     }
 
     // MERGE FUNCTIONALITY
 
-    void merge() throws Exception {
+    void merge() throws Exception  {
 
         // number of characters the longest filename of the source files has - without file ending
         int maxSourceChars = 0;
@@ -120,11 +134,16 @@ public class Merger {
                     // if the line starts with the defined date-time-start-pattern create a new line object
                     // and add it to the list
                     final Matcher m = LOG_LINE_DATE_PATTERN.matcher(line);
-                    while (m.find()) {
+                    if(m.find()) {
                         // read the matcher groups and create the new line object
                         final String dateString = m.group(1);
                         final String message = m.group(2);
                         final Date date = LOG_DATE_FORMAT.parse(dateString);
+
+                        if(null != containedString && !line.contains(containedString)) {
+                            continue;
+                        }
+
                         lastItem = new Line(source, date, message);
                         lineObjects.add(lastItem);
 
@@ -134,16 +153,17 @@ public class Merger {
                         // increment the number of processed lines - not the number of logfile entries
                         processedLines++;
 
-                        break;
+                        continue;
                     }
 
                     // if the current line is an additional line of the current logfile entry
                     // add it to the message string and separate it by a new line followed by a tab
                     if(null == lastItem) {
-                        System.out.println("UNALLOCATED LINE | No previously matched line found in logfile! | Line content: " + line);
+                        System.out.println("UNALLOCATED LINE | No previously matched line found in logfile! | Line content: " + line.length());
                         continue;
                     }
-                    lastItem.message += "\n\t" + line;
+                    //lastItem.message += "\n\t" + line;
+                    lastItem.message += "\n" + line;
 
                     // increment the number of processed lines - not the number of logfile entries
                     processedLines++;
