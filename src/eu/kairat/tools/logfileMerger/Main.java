@@ -18,7 +18,7 @@ public class Main {
             jc.setProgramName("java -jar logfileMerger.jar");
         } catch(final ParameterException e0) {
             System.out.println(e0.getMessage());
-            System.out.println("\nTo display all options use parameter \"-h\"!\n");
+            System.out.println("\nTo display all options use parameter \"-h\" or \"--help\"!\n");
             return;
         }
 

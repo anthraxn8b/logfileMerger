@@ -25,27 +25,27 @@ public class Merger {
 
     // PARAMETERS
 
-    @Parameter(names = "-logfileSourcePath", required = true,
+    @Parameter(names = "--logfileSourcePath", required = true,
             description = "The path where the tool can find the logfiles to merge.")
     String logfileSourcePath;
 
-    @Parameter(names = "-logfileSourceFileExtension",
+    @Parameter(names = "--logfileSourceFileExtension",
             description = "The file extension of the logfiles to merge.")
     String logfileSourceFileExtension = "log";
 
-    @Parameter(names = "-logfileTargetPath",
+    @Parameter(names = "--logfileTargetPath",
             description = "The path where the tool creates the logfile containing the merging result.")
     String logfileTargetPath = ".\\";
 
-    @Parameter(names = "-logfileTargetName",
+    @Parameter(names = "--logfileTargetName",
             description = "The name of the logfile containing the merging result. It will be prefixed by the current date time.")
     String logfileTargetName = "mergedLogfile.log";
 
-    @Parameter(names = "-containedString",
+    @Parameter(names = "--containedString",
             description = "A string that has to be contained in all log entries (in the 1st line).")
     String containedString = null;
 
-    @Parameter(names = "-h", help = true,
+    @Parameter(names = {"--help", "-h"}, help = true,
             description = "Displays the available options.")
     boolean help;
 
